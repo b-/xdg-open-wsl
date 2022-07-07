@@ -167,6 +167,8 @@ def get_powershell_path() -> str:
 @click.option("--logfile")
 @click.argument("file_or_url")
 def main(logfile, file_or_url):
+    logfile = '/home/b/xdg_open_wsl.log'
+
     """Drop-in replacement for xdg-open on WSL systems that will open filename or URL using Windows.
 
     Use this to have your WSL X-application open files and links in the corresponding Windows application.
@@ -180,7 +182,6 @@ def main(logfile, file_or_url):
     it is passed as a standard full "D:\\my\\path\\file.ext" to Windows for handling. If it is on the WSL
     filesystem, it is transformed to a "wsl$\\"-style URI and passed to Windows for handling.
     """
-
     if logfile is not None:
         file_handler = logging.FileHandler(logfile)
         logger.addHandler(file_handler)
@@ -191,7 +192,7 @@ def main(logfile, file_or_url):
         # after a few months of testing, this has proven reliable for normal links than explorer
         # for powershell.exe special characters such as & and (, often occurring in URLs, have to be escaped.
 #        sp_run_arg = ["start.exe", escape_for_powershell_exe(file_or_url)]
-        sp_run_arg = [get_startexe_path(), escape_for_powershell_exe(file_or_url)]
+        sp_run_arg = [get_startexe_path(), (file_or_url)]
         # sp_run_arg = ["explorer.exe", escape_for_powershell_exe(fn)]
         logger.info(f"http(s) -> subprocess.run() -> {sp_run_arg}")
         subprocess.run(sp_run_arg)
