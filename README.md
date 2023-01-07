@@ -4,7 +4,7 @@ xdg-open-wsl is an xdg-open replacement for WSL that opens files and links using
 
 For WSL apps using X, e.g. emacs, this enables the opening of files using the relevant Windows tool.
 
-![Run Tests](https://github.com/cpbotha/xdg-open-wsl/workflows/Run%20Tests/badge.svg)
+![Run Tests](https://github.com/b-/xdg-open-wsl/workflows/Run%20Tests/badge.svg)
 
 ## Installation.
 
@@ -17,7 +17,7 @@ Until I publish to pypi, the easiest is option 1.
 # NOTE: you HAVE to do this upgrade, else pip install won't know what to do without setup.py!
 pip3 install --user --upgrade pip
 # install xdg-open-wsl using your latest pip
-pip install --user git+https://github.com/cpbotha/xdg-open-wsl.git
+pip install --user git+https://github.com/b-/xdg-open-wsl.git
 # ensure that the newly installed xdg-open is active
 # the following command should show something like /home/username/.local/bin/xdg-open
 which xdg-open
