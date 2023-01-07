@@ -163,12 +163,38 @@ def get_powershell_path() -> str:
     return "powershell.exe"
 
 
+
+def get_start_command(file_or_url) -> str:
+    """Generate command to run in main() and for tests"""
+    
+    # if we get passed a normal url by e.g. browse-url.el, just open it directly
+    if re.match(r"^(https?|zotero):.*", file_or_url):
+        # to open web-links, we currently use "powershell.exe /c start http://your.url"
+        # after a few months of testing, this has proven reliable for normal links than explorer
+        # for powershell.exe special characters such as & and (, often occurring in URLs, have to be escaped.
+#        sp_run_arg = ["start.exe", escape_for_powershell_exe(file_or_url)]
+        sp_run_arg = [get_startexe_path(), (file_or_url)]
+        # sp_run_arg = ["explorer.exe", escape_for_powershell_exe(fn)]
+        logger.info(f"http(s) -> subprocess.run() -> {sp_run_arg}")
+        #subprocess.run(sp_run_arg)
+        return(sp_run_arg)
+
+    # again here we could use explorer or powershell. In this case, I've had the most joy with explorer.exe
+#    sp_run_arg = [get_explorer_path(), winfn]
+#    sp_run_arg = [get_powershell_path(), "/c", "start", escape_for_powershell_exe(winfn)]
+    sp_run_arg = [get_startexe_path(), escape_for_powershell_exe(winfn)]
+    return(sp_run_arg)
+    # winfn = convert_filename_to_windows(
+    #     file_or_url, build_mnt_to_drive_table(), os.environ.get("WSL_DISTRO_NAME", "Ubuntu-18.04")
+    # )
+
+  #  winfn = convert_filename_to_windows_new(file_or_url)
+
 @click.command()
 @click.option("--logfile")
 @click.argument("file_or_url")
 def main(logfile, file_or_url):
-    logfile = '/home/b/xdg_open_wsl.log'
-
+    # logfile = '/home/b/xdg_open_wsl.log'
     """Drop-in replacement for xdg-open on WSL systems that will open filename or URL using Windows.
 
     Use this to have your WSL X-application open files and links in the corresponding Windows application.
@@ -185,29 +211,7 @@ def main(logfile, file_or_url):
     if logfile is not None:
         file_handler = logging.FileHandler(logfile)
         logger.addHandler(file_handler)
-
-    # if we get passed a normal url by e.g. browse-url.el, just open it directly
-    if re.match(r"^(https?|zotero):.*", file_or_url):
-        # to open web-links, we currently use "powershell.exe /c start http://your.url"
-        # after a few months of testing, this has proven reliable for normal links than explorer
-        # for powershell.exe special characters such as & and (, often occurring in URLs, have to be escaped.
-#        sp_run_arg = ["start.exe", escape_for_powershell_exe(file_or_url)]
-        sp_run_arg = [get_startexe_path(), (file_or_url)]
-        # sp_run_arg = ["explorer.exe", escape_for_powershell_exe(fn)]
-        logger.info(f"http(s) -> subprocess.run() -> {sp_run_arg}")
-        subprocess.run(sp_run_arg)
-        return
-
-    # winfn = convert_filename_to_windows(
-    #     file_or_url, build_mnt_to_drive_table(), os.environ.get("WSL_DISTRO_NAME", "Ubuntu-18.04")
-    # )
-
-    winfn = convert_filename_to_windows_new(file_or_url)
-
-    # again here we could use explorer or powershell. In this case, I've had the most joy with explorer.exe
-#    sp_run_arg = [get_explorer_path(), winfn]
-#    sp_run_arg = [get_powershell_path(), "/c", "start", escape_for_powershell_exe(winfn)]
-    sp_run_arg = [get_startexe_path(), escape_for_powershell_exe(winfn)]
+    sp_run_arg = get_start_command(file_or_url)
     logger.info("====================>")
     logger.info(f"http(s) -> subprocess.run() -> {sp_run_arg}")
     completed_process = subprocess.run(sp_run_arg)
